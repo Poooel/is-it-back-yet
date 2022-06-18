@@ -1,5 +1,18 @@
-import sentryPlugin from "@cloudflare/pages-plugin-sentry";
+import Toucan from 'toucan-js'
 
-export const onRequest = sentryPlugin({
-  dsn: "https://211d54e586444016b5a16919caf58d75@o1292315.ingest.sentry.io/6513803",
-});
+const SentryMiddleware = async ({ request, next, env, waitUntil }) => {
+  const sentry = new Toucan({
+    dsn: env.SENTRY_DSN,
+    context: { waitUntil, request },
+  });
+  try {
+    return await next();
+  } catch (thrown) {
+    sentry.captureException(thrown);
+    return new Response(`Error ${thrown}`, {
+      status: 500,
+    });
+  }
+};
+
+export const onRequest = [SentryMiddleware];
