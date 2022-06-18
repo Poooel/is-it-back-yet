@@ -1,9 +1,11 @@
 import { jsonResponse } from "../utils/jsonResponse";
 
 export const onRequestGet: PagesFunction<{
-  ISITBACKYET: KVNamespace;
-}> = async ({ request, env}) => {
-  return jsonResponse({request, env})
+  TEST: KVNamespace;
+}> = async ({ env }) => {
+  const testing = await env.TEST.get("SOMETHING", "json")
+
+  return jsonResponse({ env, testing })
 }
 
 //   (context) {
