@@ -6,7 +6,8 @@ function App({ Component, pageProps }) {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
-        retry: false
+        retry: false,
+        refetchOnWindowFocus: false
       }
     }
   }))

@@ -1,11 +1,12 @@
 import { jsonResponse } from "../utils/jsonResponse";
 
-const keyName = "lastTimeChecked"
+const lastTimeCheckedKey = "lastTimeChecked"
+const lastStatusCheckedKey = "lastStatusChecked"
 
 export async function onRequestGet(context) {
   const { env } = context;
 
-  const lastCheckedFromKV = await env.LAST_CHECKED.get(keyName)
+  const lastCheckedFromKV = await env.LAST_CHECKED.get(lastTimeCheckedKey)
   let lastChecked
 
   if (lastCheckedFromKV === null) {
@@ -20,10 +21,13 @@ export async function onRequestGet(context) {
   timeDiff /= 1000
 
   if (timeDiff < 3600) {
+    const lastStatusChecked = await env.LAST_CHECKED.get(lastStatusCheckedKey)
+
     return jsonResponse(
       {
-        errorMessage: 'You already checked less than an hour ago, you can only check every hour.',
-        lastTimeChecked: lastChecked.toISOString()
+        errorMessage: 'You (or someone else) already checked less than an hour ago, you can only check once an hour.',
+        lastTimeChecked: lastChecked.toISOString(),
+        lastStatusChecked
       },
       {
         status: 429
@@ -40,7 +44,8 @@ export async function onRequestGet(context) {
         }
       })
 
-    await env.LAST_CHECKED.put(keyName, now.toISOString())
+    await env.LAST_CHECKED.put(lastStatusCheckedKey, status)
+    await env.LAST_CHECKED.put(lastTimeCheckedKey, now.toISOString())
 
     return jsonResponse(
       {
