@@ -1,21 +1,15 @@
 import { jsonResponse } from "../utils/jsonResponse";
 
-export async function onRequestGet(context) {
-  // Contents of context object
-  const {
-    request, // same as existing Worker API
-    env, // same as existing Worker API
-    params, // if filename includes [id] or [[path]]
-    waitUntil, // same as ctx.waitUntil in existing Worker API
-    next, // used for middleware or to fetch assets
-    data, // arbitrary space for passing data between middlewares
-  } = context;
+const keyName = "lastTimeChecked"
 
-  let lastCheckedFromKV = await env.LAST_CHECKED.get('lastTimeChecked')
+export async function onRequestGet(context) {
+  const { env } = context;
+
+  const lastCheckedFromKV = await env.LAST_CHECKED.get(keyName)
   let lastChecked
 
   if (lastCheckedFromKV === null) {
-    lastChecked = new Date()
+    lastChecked = new Date(new Date().setDate(new Date().getDate() - 1))
   } else {
     lastChecked = new Date(lastCheckedFromKV)
   }
@@ -36,18 +30,26 @@ export async function onRequestGet(context) {
       }
     )
   } else {
-    const body = await fetch('https://www.oat.ie/')    
+    const status = await fetch('https://www.oat.ie/')    
       .then(response => response.text())
       .then(text => {
         if (/coming soon/i.test(text)) {
-          { status: 'Still waiting :(' }
+          'COMING_SOON'
         } else {
-          { status: "It's back!" }
+          'OPEN'
         }
       })
 
-    await env.LAST_CHECKED.put('lastTimeChecked', lastChecked.toISOString())
+    await env.LAST_CHECKED.put(keyName, now.toISOString())
 
-    return jsonResponse(body)
+    return jsonResponse(
+      {
+        status,
+        lastTimeChecked: now.toISOString()
+      },
+      { 
+        status: 200 
+      }
+    )
   }
 }
