@@ -34,9 +34,9 @@ export async function onRequestGet(context) {
       .then(response => response.text())
       .then(text => {
         if (/coming soon/i.test(text)) {
-          'COMING_SOON'
+          return 'COMING_SOON'
         } else {
-          'OPEN'
+          return 'OPEN'
         }
       })
 
