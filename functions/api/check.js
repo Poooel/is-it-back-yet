@@ -1,9 +1,21 @@
 import { jsonResponse } from "../utils/jsonResponse";
 
-export const onRequestGet: PagesFunction<{
-  TEST: KVNamespace;
-}> = async ({ env }) => {
-  const testing = await env.TEST.get("SOMETHING", "json")
+export async function onRequestGet(context) {
+  // Contents of context object
+  const {
+    request, // same as existing Worker API
+    env, // same as existing Worker API
+    params, // if filename includes [id] or [[path]]
+    waitUntil, // same as ctx.waitUntil in existing Worker API
+    next, // used for middleware or to fetch assets
+    data, // arbitrary space for passing data between middlewares
+  } = context;
+
+  const testing = await env.SOMETHING.get("DINGDONG")
+
+  if (testing === null) {
+    await env.SOMETHING.put('DINGDONG', 'OUI JE SUIS LA')
+  }
 
   return jsonResponse({ env, testing })
 }
