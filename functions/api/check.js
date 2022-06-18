@@ -9,38 +9,38 @@ export async function onRequestGet(context) {
       data, // arbitrary space for passing data between middlewares
     } = context;
 
-    const lastChecked = await env.IsItBackYet.get('LAST_CHECKED')
+    let lastCheckedFromKV = await env.IsItBackYet.get('LAST_CHECKED')
+    let lastChecked
 
-    if (lastChecked === null) {
-      return new Response("Value not found", { status: 404 })
+    if (lastCheckedFromKV === null) {
+      lastChecked = new Date()
     } else {
-      return new Response(lastChecked)
+      lastChecked = new Date(lastCheckedFromKV)
+    }
+
+    const now = new Date()
+
+    let timeDiff = now - lastChecked
+    timeDiff /= 1000
+
+    if (timeDiff < 3600) {
+      return new Response(JSON.stringify({ 
+        errorMessage: 'You already checked less than an hour ago, you can only check every hour.',
+        lastTimeChecked: lastChecked.toISOString()
+      }))
+    } else {
+      const body = await fetch('https://www.oat.ie/')    
+        .then(response => response.text())
+        .then(text => {
+          if (/coming soon/i.test(text)) {
+            { status: 'Still waiting :(' }
+          } else {
+            { status: "It's back!" }
+          }
+        })
+
+      await env.IsItBackYet.put('LAST_CHECKED', lastChecked.toISOString())
+
+      return new Response(JSON.stringify(body))
     }
 }
-
-/*
-const now = new Date()
-  const lastChecked = Date.parse(localStorage.getItem('lastChecked')) || Date.parse('01 Jan 1970 00:00:00 GMT')
-
-  let timeDiff = now - lastChecked
-  timeDiff /= 1000
-
-  if (timeDiff < 3600) {
-    res.status(429).json({ 
-      errorMessage: 'You already checked less than an hour ago, you can only check every hour.',
-      lastTimeChecked: lastChecked.toISOString()
-    })
-  } else {
-    return fetch('https://www.oat.ie/')    
-      .then(response => response.text())
-      .then(text => {
-        if (/coming soon/i.test(text)) {
-          res.status(200).json({ status: 'Still waiting :(' })
-        } else {
-          res.status(200).json({ status: 'Its back!' })
-        }
-
-        localStorage.setItem('lastChecked', now.toISOString())
-      })
-  }
-*/
