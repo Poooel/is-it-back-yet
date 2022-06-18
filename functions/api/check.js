@@ -10,20 +10,26 @@ export async function onRequestGet(context) {
     } = context;
 
     try {
+      console.log("Getting key from KV")
       let lastCheckedFromKV = await env.IsItBackYet.get('LAST_CHECKED')
       let lastChecked
   
+      console.log("Checking if it is null")
       if (lastCheckedFromKV === null) {
         lastChecked = new Date()
       } else {
         lastChecked = new Date(lastCheckedFromKV)
       }
   
+      console.log("Shouldn't be null now")
+      console.log({ lastChecked })
       const now = new Date()
   
       let timeDiff = now - lastChecked
       timeDiff /= 1000
   
+      console.log("Checking time diff")
+      console.log({ timeDiff })
       if (timeDiff < 3600) {
         return new Response(JSON.stringify({ 
           errorMessage: 'You already checked less than an hour ago, you can only check every hour.',
