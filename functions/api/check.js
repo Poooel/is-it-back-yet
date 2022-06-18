@@ -9,6 +9,8 @@ export async function onRequestGet(context) {
       data, // arbitrary space for passing data between middlewares
     } = context;
 
+    return new Response(JSON.stringify(env))
+
     let lastCheckedFromKV = await env.IsItBackYet.get('LAST_CHECKED')
     let lastChecked
 
