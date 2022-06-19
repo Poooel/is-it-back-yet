@@ -1,21 +1,39 @@
+import { useState } from "react";
+import Confetti from "react-confetti";
 import { useQuery } from "react-query"
+import { useWindowSize } from "react-use";
 
 function Home() {
   const { isLoading, data, refetch, isRefetching } = useQuery(
     'check-website', 
     () => fetch('/api/check').then(res => res.json())
   )
+  const { width, height } = useWindowSize()
+  const [open, setOpen] = useState(false)
+
+  if (!isLoading && !open && ((data.status || data.lastStatusChecked) === "OPEN")) {
+    setOpen(true)
+  }
 
   return (
+    <>
+    <Confetti
+      width={width}
+      height={height}
+      opacity={open ? 1 : 0.1}
+      numberOfPieces={open ? 600 : 30}
+    />
     <div className="text-xl flex h-screen bg-slate-100">
       <div className="m-auto text-center">
-        {!isLoading ? (
+        {isLoading ? (
+          <div>Loading...</div>
+        ) : (
           <div>
             <p>
               The last time someone checked, Oat was {' '}{(data.status || data.lastStatusChecked) === "OPEN" ? (<span>open! <span className="emoji" role="img" aria-label="confetti">🎉</span></span>) : (<span>still closed. <span className="emoji" role="img" aria-label="sad">☹️</span></span>)}
             </p>
             {(data.status || data.lastStatusChecked) === "OPEN" && (
-              <div className="bg-slate-200 rounded-lg p-2 m-4 hover:underline hover:text-blue-500 flex justify-center">
+              <div className="bg-slate-200 border-slate-500 border-2 rounded-lg p-2 m-4 hover:underline hover:text-blue-500 inline-flex justify-center">
                 <a href="https://www.oat.ie/" target="_blank" rel="noreferrer">
                   Order on Oat.ie
                 </a>
@@ -36,11 +54,10 @@ function Home() {
             </button>
             {data.errorMessage && (<div className="text-sm text-slate-400">{data.errorMessage}</div>)}
           </div>
-        ) : (
-          <div>Loading...</div>
         )}
       </div>
     </div>
+    </>
   )
 }
 
