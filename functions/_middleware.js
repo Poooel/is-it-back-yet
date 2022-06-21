@@ -1,4 +1,4 @@
-import Toucan from 'toucan-js'
+import Toucan from "toucan-js";
 
 const SentryMiddleware = async ({ request, next, env, waitUntil }) => {
   const sentry = new Toucan({
