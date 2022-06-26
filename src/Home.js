@@ -52,34 +52,35 @@ function Home() {
                 )}
               </p>
               {(data.status || data.lastStatusChecked) === "OPEN" && (
-                <div className="bg-slate-200 border-slate-500 border-2 rounded-lg p-2 m-4 hover:underline hover:text-blue-500 inline-flex justify-center">
+                <div>
                   <a
+                    className="bg-slate-200 border-slate-500 border-2 rounded-lg p-2 m-4 hover:bg-slate-300 inline-flex justify-center"
                     href="https://www.oat.ie/"
                     target="_blank"
                     rel="noreferrer"
                   >
                     Order on Oat.ie
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 mx-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                      />
+                    </svg>
                   </a>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 mx-1"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    />
-                  </svg>
                 </div>
               )}
               <p>
                 It was last checked on{" "}
                 <span className="font-bold">
-                  {new Date(data.lastTimeChecked).toLocaleString("en-US")}
+                  {new Date(data.lastTimeChecked).toLocaleString("en-IE")}
                 </span>
               </p>
               <button
