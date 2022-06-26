@@ -27,7 +27,7 @@ function Home() {
         opacity={open ? 1 : 0.1}
         numberOfPieces={open ? 600 : 30}
       />
-      <div className="text-xl flex h-screen bg-slate-100">
+      <div className="text-xl flex h-screen bg-slate-100 p-12">
         <div className="m-auto text-center">
           {isLoading ? (
             <div>Loading...</div>
