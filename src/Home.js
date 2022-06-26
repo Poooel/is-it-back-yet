@@ -25,7 +25,7 @@ function Home() {
         width={width}
         height={height}
         opacity={open ? 1 : 0.1}
-        numberOfPieces={open ? 600 : 30}
+        numberOfPieces={open ? 800 : 30}
       />
       <div className="text-xl flex h-screen bg-slate-100 p-12">
         <div className="m-auto text-center">
