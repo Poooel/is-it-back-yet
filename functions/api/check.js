@@ -35,15 +35,27 @@ export async function onRequestGet(context) {
       }
     );
   } else {
-    const status = await fetch("https://www.oat.ie/")
-      .then((response) => response.text())
-      .then((text) => {
-        if (/coming soon/i.test(text)) {
-          return "COMING_SOON";
-        } else {
-          return "OPEN";
-        }
-      });
+    const html = await fetch("https://www.oat.ie/");
+    let textNode = "";
+    let status;
+
+    const parser = new HTMLRewriter()
+      .on("div#comp-l0o9fhfe > h1 > span > span", {
+        text(text) {
+          if (!text.lastInTextNode) {
+            textNode += text.text;
+          } else {
+            if (/coming soon./i.test(textNode)) {
+              status = "COMING_SOON";
+            } else {
+              status = "OPEN";
+            }
+          }
+        },
+      })
+      .transform(html);
+
+    await parser.text();
 
     await env.LAST_CHECKED.put(lastStatusCheckedKey, status);
     await env.LAST_CHECKED.put(lastTimeCheckedKey, now.toISOString());
