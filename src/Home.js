@@ -1,7 +1,15 @@
+import classNames from "classnames";
 import { useState } from "react";
 import Confetti from "react-confetti";
 import { useQuery } from "react-query";
 import { useWindowSize } from "react-use";
+import MailSvg from "./svg/MailSvg";
+import CodeSvg from "./svg/CodeSvg";
+import ReloadSvg from "./svg/ReloadSvg";
+import ExternalLinkSvg from "./svg/ExternalLinkSvg";
+import ConfettiEmoji from "./emoji/ConfettiEmoji";
+import SadEmoji from "./emoji/SadEmoji";
+import FormattedDate from "./FormattedDate";
 
 function Home() {
   const { isLoading, data, refetch, isRefetching } = useQuery(
@@ -17,6 +25,12 @@ function Home() {
     (data.status || data.lastStatusChecked) === "OPEN"
   ) {
     setOpen(true);
+  } else if (
+    !isLoading &&
+    open &&
+    (data.status || data.lastStatusChecked) !== "OPEN"
+  ) {
+    setOpen(false);
   }
 
   return (
@@ -26,84 +40,52 @@ function Home() {
         height={height}
         opacity={open ? 1 : 0.1}
         numberOfPieces={open ? 800 : 30}
+        className={classNames({ blur: !open })}
       />
-      <div className="text-xl flex h-screen bg-slate-100 p-12">
-        <div className="m-auto text-center">
+      <div className="flex flex-col h-screen bg-slate-50 text-center px-10">
+        <main className="m-auto text-xl">
           {isLoading ? (
             <div>Loading...</div>
           ) : (
             <div>
               <p>
                 The last time someone checked, Oat was{" "}
-                {(data.status || data.lastStatusChecked) === "OPEN" ? (
+                {open ? (
                   <span>
-                    open!{" "}
-                    <span className="emoji" role="img" aria-label="confetti">
-                      🎉
-                    </span>
+                    open! <ConfettiEmoji />
                   </span>
                 ) : (
                   <span>
-                    still closed.{" "}
-                    <span className="emoji" role="img" aria-label="sad">
-                      ☹️
-                    </span>
+                    still closed. <SadEmoji />
                   </span>
                 )}
               </p>
-              {(data.status || data.lastStatusChecked) === "OPEN" && (
+              {open && (
                 <div>
                   <a
-                    className="bg-slate-200 border-slate-500 border-2 rounded-lg p-2 m-4 hover:bg-slate-300 inline-flex justify-center"
+                    className="bg-slate-200 border-slate-500 border-2 rounded-lg p-2 m-2 hover:bg-slate-300 inline-flex"
                     href="https://www.oat.ie/"
                     target="_blank"
                     rel="noreferrer"
                   >
                     Order on Oat.ie
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 mx-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                      />
-                    </svg>
+                    <ExternalLinkSvg />
                   </a>
                 </div>
               )}
               <p>
                 It was last checked on{" "}
-                <span className="font-bold">
-                  {new Date(data.lastTimeChecked).toLocaleString("en-IE")}
-                </span>
+                <FormattedDate
+                  className="font-bold"
+                  date={data.lastTimeChecked}
+                />
               </p>
               <button
-                className="mt-4 px-4 py-2"
+                className={classNames("mt-8", { "animate-spin": isRefetching })}
                 type="button"
                 onClick={refetch}
               >
-                <div className={isRefetching ? "animate-spin" : ""}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 -scale-x-100"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                </div>
+                <ReloadSvg />
               </button>
               {data.errorMessage && (
                 <div className="text-sm text-slate-400">
@@ -112,7 +94,21 @@ function Home() {
               )}
             </div>
           )}
-        </div>
+        </main>
+        <footer className="pb-2">
+          <div className="inline-flex gap-4 text-slate-400">
+            <a
+              href="https://github.com/Poooel/is-it-back-yet"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <CodeSvg />
+            </a>
+            <a href="mailto:contact@is-it-back-yet.com">
+              <MailSvg />
+            </a>
+          </div>
+        </footer>
       </div>
     </>
   );
